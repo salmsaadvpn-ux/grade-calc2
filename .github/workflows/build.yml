@@ -1,0 +1,50 @@
+name: Build APK
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Install Cordova
+        run: npm install -g cordova
+
+      - name: Create Cordova project
+        run: cordova create myapp com.grade.calc2 GradeCalc
+
+      - name: Copy files
+        run: |
+          cp index.html myapp/www/index.html
+          cp config.xml myapp/config.xml
+
+      - name: Add Android platform
+        working-directory: myapp
+        run: cordova platform add android
+
+      - name: Build APK
+        working-directory: myapp
+        run: cordova build android --release -- --packageType=apk
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: grade-calc2
+          path: myapp/platforms/android/app/build/outputs/apk/release/*.apk
