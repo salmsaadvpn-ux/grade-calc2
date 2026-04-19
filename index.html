@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>حاسبة المعدل الذكي</title>
+<style>
+:root{
+  --bg:#0d1117;--bg2:#111827;--card:#161c2b;--card2:#1e2538;
+  --brd:#252f45;--txt:#e8edf8;--mut:#4a5572;--sub:#6a7a9a;
+  --acc:#7c6ef5;--acg:rgba(124,110,245,.18);
+  --grn:#10b981;--grb:rgba(16,185,129,.15);
+  --red:#f43f5e;--rdb:rgba(244,63,94,.15);
+  --yel:#f59e0b;--ylb:rgba(245,158,11,.15);
+  --ora:#f97316;--orb:rgba(249,115,22,.15);
+  --blu:#38bdf8;--blb:rgba(56,189,248,.15);
+  --gld:#d4a843;
+  --sh:0 2px 12px rgba(0,0,0,.5);
+}
+[data-lt]{
+  --bg:#f0f4ff;--bg2:#e8edf7;--card:#fff;--card2:#f4f7ff;
+  --brd:#dde3f2;--txt:#1a1f36;--mut:#b0b9ce;--sub:#8492aa;
+  --acc:#5b6ef5;--acg:rgba(91,110,245,.12);
+  --sh:0 2px 10px rgba(91,110,245,.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans Arabic",Arial,sans-serif;
+  transition:background .2s,color .2s;}
+#app{height:100vh;max-width:430px;margin:0 auto;display:flex;flex-direction:column;overflow:hidden;}
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:8px 13px 7px;background:var(--card);border-bottom:1px solid var(--brd);flex-shrink:0;box-shadow:var(--sh);}
+.hdr-l{display:flex;align-items:center;gap:9px;}
+.logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#7c6ef5,#a855f7);display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:900;color:#fff;box-shadow:0 3px 10px rgba(124,110,245,.35);}
+.hdr-t{font-size:.88rem;font-weight:900;color:var(--acc);}
+.hdr-s{font-size:.52rem;color:var(--mut);}
+.hbtns{display:flex;gap:6px;}
+.hbtn{width:30px;height:30px;border-radius:8px;border:1px solid var(--brd);background:var(--card2);cursor:pointer;font-size:.82rem;color:var(--txt);display:flex;align-items:center;justify-content:center;transition:.12s;}
+.hbtn:active{transform:scale(.85);}
+.hbtn.on{background:var(--acc);border-color:var(--acc);color:#fff;}
+.sett{position:absolute;top:50px;left:0;right:0;z-index:30;overflow:hidden;max-height:0;opacity:0;transition:max-height .28s,opacity .2s;pointer-events:none;}
+.sett.open{max-height:310px;opacity:1;pointer-events:all;}
+.si{margin:0 11px 6px;background:var(--card);border:1px solid var(--brd);border-radius:0 0 14px 14px;padding:8px 11px;display:flex;flex-direction:column;gap:4px;box-shadow:var(--sh);}
+.sr{display:flex;align-items:center;justify-content:space-between;padding:7px 9px;background:var(--bg2);border-radius:9px;}
+.sl{font-size:.75rem;font-weight:700;}
+.ss{font-size:.6rem;color:var(--sub);}
+.sw{position:relative;width:38px;height:20px;flex-shrink:0;}
+.sw input{opacity:0;width:0;height:0;}
+.sk{position:absolute;inset:0;background:var(--brd);border-radius:99px;cursor:pointer;transition:.2s;}
+.sk::before{content:"";position:absolute;width:14px;height:14px;left:3px;top:3px;background:var(--mut);border-radius:50%;transition:.2s;}
+.sw input:checked+.sk{background:var(--acc);}
+.sw input:checked+.sk::before{transform:translateX(18px);background:#fff;}
+.stp{display:flex;align-items:center;gap:5px;}
+.spb{width:22px;height:22px;border-radius:6px;border:1px solid var(--brd);background:var(--card);color:var(--txt);font-size:.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.spb:active{transform:scale(.84);}
+.spv{font-size:.82rem;font-weight:900;color:var(--acc);min-width:18px;text-align:center;}
+.tw{flex:1;overflow:hidden;display:flex;flex-direction:column;}
+.tab{display:none;flex-direction:column;gap:8px;padding:9px 12px 8px;overflow-y:auto;flex:1;}
+.tab.active{display:flex;}
+.sec{display:flex;align-items:center;justify-content:space-between;}
+.stt{font-size:.67rem;font-weight:700;color:var(--sub);}
+.cbtn{background:var(--rdb);border:1px solid rgba(244,63,94,.3);border-radius:7px;padding:3px 10px;font-size:.67rem;font-weight:700;color:var(--red);cursor:pointer;font-family:inherit;}
+.cbtn:active{transform:scale(.9);}
+.gboxes{display:grid;gap:6px;}
+.gbox{background:var(--card);border:2px solid var(--brd);border-radius:12px;padding:7px 4px 5px;text-align:center;transition:border-color .15s,box-shadow .15s;}
+.gbox.foc{border-color:var(--acc);box-shadow:0 0 0 3px var(--acg);}
+.gbox.don{border-color:var(--grn);box-shadow:0 0 0 3px rgba(16,185,129,.15);}
+.gbox input{width:100%;border:none;background:transparent;outline:none;font-family:inherit;font-size:1.5rem;font-weight:900;text-align:center;color:var(--acc);caret-color:var(--acc);display:block;}
+.gbox input::placeholder{color:var(--brd);}
+.gbox input::-webkit-outer-spin-button,.gbox input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+.glbl{font-size:.56rem;color:var(--mut);margin-top:2px;}
+.srboxes{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.srbox{background:var(--card);border:2px solid var(--brd);border-radius:12px;padding:7px 4px 5px;text-align:center;transition:border-color .15s,box-shadow .15s;}
+.srbox.foc{border-color:var(--acc);box-shadow:0 0 0 3px var(--acg);}
+.srbox.don{border-color:var(--grn);box-shadow:0 0 0 3px rgba(16,185,129,.15);}
+.srbox input{width:100%;border:none;background:transparent;outline:none;font-family:inherit;font-size:1.5rem;font-weight:900;text-align:center;color:var(--acc);caret-color:var(--acc);display:block;}
+.srbox input::placeholder{color:var(--brd);}
+.srbox input::-webkit-outer-spin-button,.srbox input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+.srlbl{font-size:.56rem;color:var(--mut);margin-top:2px;}
+@keyframes fc{0%{transform:scale(1)}35%{transform:scale(1.2)}100%{transform:scale(1)}}
+@keyframes fi{0%{opacity:0;transform:scale(.3)}55%{transform:scale(1.12)}100%{opacity:1;transform:scale(1)}}
+.fc{animation:fc .13s ease;}
+.fi{animation:fi .13s ease;}
+.rcard{background:var(--card);border:1px solid var(--brd);border-radius:13px;padding:10px 13px;box-shadow:var(--sh);display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.rlbl{font-size:.58rem;color:var(--mut);}
+.ravg{display:flex;align-items:baseline;gap:3px;}
+.ravg-n{font-size:1.9rem;font-weight:900;color:var(--acc);}
+.ravg-d{font-size:1.2rem;font-weight:700;color:var(--gld);}
+.rform{font-size:.58rem;color:var(--mut);margin-top:3px;}
+.rbadge{font-size:.7rem;font-weight:800;border-radius:6px;padding:2px 7px;margin-top:3px;display:none;}
+.cdrow{display:none;align-items:center;gap:3px;margin-top:3px;}
+.cdrow.show{display:flex;}
+.cdt{font-size:.58rem;color:var(--mut);}
+.cdr{position:relative;width:20px;height:20px;}
+.cdr svg{transform:rotate(-90deg);}
+.cdbg{fill:none;stroke:var(--brd);stroke-width:3;}
+.cdarc{fill:none;stroke:var(--acc);stroke-width:3;stroke-linecap:round;stroke-dasharray:50;stroke-dashoffset:50;transition:stroke-dashoffset .1s linear;}
+.cdn{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:.5rem;font-weight:900;color:var(--acc);}
+.gpill{padding:7px 13px;border-radius:9px;font-size:.8rem;font-weight:800;white-space:nowrap;flex-shrink:0;transition:all .2s;}
+.gpe{background:var(--bg2);color:var(--mut);}
+.gpm{background:var(--grb);color:var(--grn);}
+.gpj{background:var(--blb);color:var(--blu);}
+.gpt{background:var(--ylb);color:var(--yel);}
+.gpq{background:var(--orb);color:var(--ora);}
+.gpr{background:var(--rdb);color:var(--red);}
+.srcard{background:var(--card);border:1px solid var(--brd);border-radius:13px;padding:10px 12px;box-shadow:var(--sh);}
+.srrow{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;}
+.srpct{font-size:1.05rem;font-weight:900;color:var(--mut);transition:color .2s;}
+.srdet{font-size:.63rem;color:var(--mut);}
+.bart{height:5px;background:var(--bg2);border-radius:99px;overflow:hidden;}
+.barf{height:100%;border-radius:99px;width:0%;transition:width .45s,background .3s;}
+.cdisp{background:var(--card);border:1px solid var(--brd);border-radius:13px;padding:10px 14px 8px;}
+.cexpr{font-size:.7rem;color:var(--mut);text-align:left;direction:ltr;min-height:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.cmain{font-size:2.2rem;font-weight:900;color:var(--txt);text-align:left;direction:ltr;min-height:40px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.cprev{font-size:.82rem;font-weight:700;color:var(--acc);text-align:left;direction:ltr;min-height:18px;}
+@keyframes cf{0%{transform:scale(1)}35%{transform:scale(1.05);color:var(--acc)}100%{transform:scale(1)}}
+.cf{animation:cf .1s ease;}
+.cgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
+.cb{height:52px;border-radius:12px;border:none;font-family:inherit;font-size:1.15rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .08s;box-shadow:var(--sh);}
+.cb:active{transform:scale(.88);}
+.cbn{background:var(--card);border:1px solid var(--brd);color:var(--txt);}
+.cbn:active{background:var(--card2);}
+.cbop{background:rgba(124,110,245,.16);border:1px solid rgba(124,110,245,.28);color:#9f94f8;}
+.cbop.act{background:var(--acc);color:#fff;border-color:var(--acc);}
+.cbeq{background:linear-gradient(135deg,var(--acc),#a855f7);color:#fff;border:none;box-shadow:0 3px 14px rgba(124,110,245,.4);}
+.cbfn{background:var(--bg2);border:1px solid var(--brd);color:var(--sub);font-size:.95rem;}
+.cbc{background:var(--rdb);border:1px solid rgba(244,63,94,.35);color:var(--red);font-weight:900;}
+.cbz{grid-column:span 2;}
+.awrap{display:flex;flex-direction:column;gap:9px;padding-bottom:8px;}
+.ahero{background:var(--card);border:1px solid var(--brd);border-radius:14px;padding:20px 14px;display:flex;flex-direction:column;align-items:center;gap:8px;}
+.alogo{width:58px;height:58px;border-radius:16px;background:linear-gradient(135deg,#7c6ef5,#a855f7);display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:900;color:#fff;box-shadow:0 4px 18px rgba(124,110,245,.4);}
+.aname{font-size:1.05rem;font-weight:900;color:var(--acc);}
+.aver{font-size:.62rem;color:var(--mut);}
+.adesc{font-size:.75rem;color:var(--sub);text-align:center;line-height:1.7;max-width:250px;}
+.dcard{background:var(--card);border:1px solid var(--brd);border-radius:13px;padding:12px 13px;}
+.dtit{font-size:.64rem;color:var(--mut);font-weight:700;margin-bottom:9px;}
+.drow{display:flex;align-items:center;gap:10px;}
+.dav{width:42px;height:42px;border-radius:12px;flex-shrink:0;background:linear-gradient(135deg,#7c6ef5,#a855f7);display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:900;color:#fff;}
+.dname{font-size:.88rem;font-weight:900;}
+.drole{font-size:.63rem;color:var(--mut);}
+.tgbtn{display:flex;align-items:center;gap:8px;margin-top:10px;background:linear-gradient(135deg,#0088cc,#229ed9);border-radius:11px;padding:10px 13px;text-decoration:none;box-shadow:0 3px 12px rgba(0,136,204,.3);}
+.tgbtn:active{transform:scale(.96);}
+.tgl{font-size:.84rem;font-weight:800;color:#fff;}
+.tgh{font-size:.67rem;color:rgba(255,255,255,.7);margin-right:auto;}
+.shrbtn{display:flex;align-items:center;justify-content:center;gap:7px;background:linear-gradient(135deg,var(--acc),#a855f7);border:none;border-radius:12px;padding:12px;cursor:pointer;font-family:inherit;font-size:.85rem;font-weight:800;color:#fff;box-shadow:0 3px 14px rgba(124,110,245,.4);width:100%;}
+.shrbtn:active{transform:scale(.96);}
+.bnav{display:flex;background:var(--card);border-top:1px solid var(--brd);padding:5px 7px 8px;flex-shrink:0;z-index:10;}
+.bn{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px;border-radius:8px;border:none;background:transparent;cursor:pointer;color:var(--mut);font-family:inherit;transition:.12s;}
+.bn.active{color:var(--acc);background:var(--acg);}
+.bn:active{transform:scale(.9);}
+.bnic{font-size:.92rem;line-height:1;}
+.bnlb{font-size:.57rem;font-weight:700;}
+#toast{position:fixed;bottom:75px;left:50%;transform:translateX(-50%);background:var(--card2);color:var(--txt);border:1px solid var(--brd);border-radius:10px;padding:8px 18px;font-size:.8rem;font-weight:700;z-index:999;box-shadow:var(--sh);transition:opacity .3s;pointer-events:none;white-space:nowrap;opacity:0;}
+</style>
+</head>
+<body>
+<div id="app">
+<div class="hdr">
+  <div class="hdr-l">
+    <div class="logo">GPA</div>
+    <div><div class="hdr-t">حاسبة المعدل الذكي</div><div class="hdr-s">Smart Grade Calculator</div></div>
+  </div>
+  <div class="hbtns">
+    <button class="hbtn" id="dkBtn" onclick="toggleTheme()">&#9790;</button>
+    <button class="hbtn" id="stBtn" onclick="toggleSett()">&#9881;</button>
+  </div>
+</div>
+<div class="sett" id="sett">
+  <div class="si">
+    <div class="sr"><div><div class="sl">الوضع الليلي / النهاري</div></div><label class="sw"><input type="checkbox" id="dkChk" onchange="applyTheme()"><span class="sk"></span></label></div>
+    <div class="sr"><div><div class="sl">عدد خانات الدرجات</div><div class="ss">الحد الادنى 2</div></div><div class="stp"><button class="spb" onclick="changeBoxes(-1)">-</button><div class="spv" id="bcd">3</div><button class="spb" onclick="changeBoxes(1)">+</button></div></div>
+    <div class="sr"><div><div class="sl">مسح آلي للدرجات</div><div class="ss">بعد ظهور النتيجة</div></div><label class="sw"><input type="checkbox" id="agChk"><span class="sk"></span></label></div>
+    <div class="sr"><div><div class="sl">مسح آلي لنسبة النجاح</div><div class="ss">بعد حساب النسبة</div></div><label class="sw"><input type="checkbox" id="asChk"><span class="sk"></span></label></div>
+    <div class="sr"><div><div class="sl">مدة المسح بالثواني</div></div><div class="stp"><button class="spb" onclick="chSec(-1)">-</button><div class="spv" id="secD">3</div><button class="spb" onclick="chSec(1)">+</button></div></div>
+  </div>
+</div>
+<div class="tw">
+  <div class="tab active" id="tab0">
+    <div class="sec"><div class="stt">الدرجات</div><button class="cbtn" onclick="clearGrades()">مسح X</button></div>
+    <div class="gboxes" id="gboxes"></div>
+    <div class="rcard">
+      <div>
+        <div class="rlbl">المعدل</div>
+        <div class="ravg"><span class="ravg-n" id="rn">-</span><span class="ravg-d" id="rd"></span></div>
+        <div class="rform" id="rf">ادخل الدرجات</div>
+        <div class="rbadge" id="rb"></div>
+        <div class="cdrow" id="gcd"><span class="cdt">مسح بعد</span><div class="cdr"><svg width="20" height="20" viewBox="0 0 20 20"><circle class="cdbg" cx="10" cy="10" r="7"/><circle class="cdarc" id="garc" cx="10" cy="10" r="7"/></svg><div class="cdn" id="gsec">3</div></div></div>
+      </div>
+      <div class="gpill gpe" id="gpill">-</div>
+    </div>
+    <div class="sec"><div class="stt">نسبة النجاح</div><button class="cbtn" onclick="clearSr()">مسح X</button></div>
+    <div class="srboxes">
+      <div class="srbox foc" id="srb0"><input type="tel" inputmode="numeric" id="sri0" placeholder="0" maxlength="5" autocomplete="off" onfocus="sfocus(0)" oninput="sinput(0)"><div class="srlbl">العدد الكلي</div></div>
+      <div class="srbox" id="srb1"><input type="tel" inputmode="numeric" id="sri1" placeholder="0" maxlength="5" autocomplete="off" onfocus="sfocus(1)" oninput="sinput(1)"><div class="srlbl">الناجحون</div></div>
+    </div>
+    <div class="srcard">
+      <div class="srrow"><div class="srpct" id="srpct">- %</div><div class="srdet" id="srdet">ادخل البيانات</div></div>
+      <div class="bart"><div class="barf" id="srbar"></div></div>
+      <div class="cdrow" id="srcd" style="margin-top:5px;"><span class="cdt">مسح بعد</span><div class="cdr"><svg width="20" height="20" viewBox="0 0 20 20"><circle class="cdbg" cx="10" cy="10" r="7"/><circle class="cdarc" id="srarc" cx="10" cy="10" r="7"/></svg><div class="cdn" id="srsec">3</div></div></div>
+    </div>
+  </div>
+  <div class="tab" id="tab1">
+    <div class="cdisp"><div class="cexpr" id="cex">&nbsp;</div><div class="cmain" id="cmn">0</div><div class="cprev" id="cpv">&nbsp;</div></div>
+    <div class="cgrid">
+      <button class="cb cbc" onclick="cAC()">C</button>
+      <button class="cb cbfn" onclick="cSign()">+/-</button>
+      <button class="cb cbfn" onclick="cPct()">%</button>
+      <button class="cb cbop" id="od" onclick="cOp('/')">&#247;</button>
+      <button class="cb cbn" onclick="cN('7')">7</button>
+      <button class="cb cbn" onclick="cN('8')">8</button>
+      <button class="cb cbn" onclick="cN('9')">9</button>
+      <button class="cb cbop" id="om" onclick="cOp('*')">&#215;</button>
+      <button class="cb cbn" onclick="cN('4')">4</button>
+      <button class="cb cbn" onclick="cN('5')">5</button>
+      <button class="cb cbn" onclick="cN('6')">6</button>
+      <button class="cb cbop" id="os" onclick="cOp('-')">-</button>
+      <button class="cb cbn" onclick="cN('1')">1</button>
+      <button class="cb cbn" onclick="cN('2')">2</button>
+      <button class="cb cbn" onclick="cN('3')">3</button>
+      <button class="cb cbop" id="oa" onclick="cOp('+')">+</button>
+      <button class="cb cbn cbz" onclick="cN('0')">0</button>
+      <button class="cb cbn" onclick="cDot()">.</button>
+      <button class="cb cbeq" onclick="cEq()">=</button>
+    </div>
+  </div>
+  <div class="tab" id="tab2">
+    <div class="awrap">
+      <div class="ahero"><div class="alogo">GPA</div><div class="aname">حاسبة المعدل الذكي</div><div class="aver">الاصدار 2.0</div><div class="adesc">حساب المعدل ونسبة النجاح فوراً — كسر 0.5 فاكثر يتقرب لاعلى</div></div>
+      <div class="dcard">
+        <div class="dtit">المطور</div>
+        <div class="drow"><div class="dav">س</div><div><div class="dname">سيف زهير</div><div class="drole">مطور تطبيقات تعليمية</div></div></div>
+        <a class="tgbtn" href="https://t.me/saifA31" target="_blank"><span style="font-size:1.1rem;">&#9992;</span><span class="tgl">تواصل مع المطور</span><span class="tgh">@saifA31</span></a>
+      </div>
+      <button class="shrbtn" onclick="doShare()">&#128228; مشاركة التطبيق</button>
+    </div>
+  </div>
+</div>
+<nav class="bnav">
+  <button class="bn active" id="bn0" onclick="goTab(0)"><span class="bnic">&#127891;</span><span class="bnlb">المعدل</span></button>
+  <button class="bn" id="bn1" onclick="goTab(1)"><span class="bnic">&#128290;</span><span class="bnlb">الحاسبة</span></button>
+  <button class="bn" id="bn2" onclick="goTab(2)"><span class="bnic">&#128100;</span><span class="bnlb">حول</span></button>
+</nav>
+</div>
+<div id="toast"></div>
+<script>
+var secs=3,boxes=3,tab=0,settOpen=false,lightMode=false;
+var gTimers=[],srTimer=null,gCdInt=null,srCdInt=null;
+var cCur="0",cPrev=null,cOper=null,cNewNum=false,cJustEq=false;
+function el(id){return document.getElementById(id);}
+function toggleTheme(){lightMode=!lightMode;el("dkChk").checked=lightMode;applyTheme();}
+function applyTheme(){lightMode=el("dkChk").checked;if(lightMode){document.documentElement.setAttribute("data-lt","");}else{document.documentElement.removeAttribute("data-lt");}el("dkBtn").innerHTML=lightMode?"&#9728;":"&#9790;";}
+function toggleSett(){settOpen=!settOpen;el("sett").classList.toggle("open",settOpen);el("stBtn").classList.toggle("on",settOpen);}
+function chSec(d){secs=Math.max(1,Math.min(15,secs+d));el("secD").textContent=secs;}
+function changeBoxes(d){boxes=Math.max(2,boxes+d);el("bcd").textContent=boxes;buildBoxes();}
+function goTab(i){if(settOpen){settOpen=false;el("sett").classList.remove("open");el("stBtn").classList.remove("on");}for(var j=0;j<3;j++){el("tab"+j).classList.toggle("active",j===i);el("bn"+j).classList.toggle("active",j===i);}tab=i;}
+function buildBoxes(){
+  var wrap=el("gboxes"),saved=[];
+  for(var k=0;k<boxes+5;k++){var e=el("gi"+k);if(e)saved[k]=e.value;}
+  wrap.innerHTML="";gTimers=[];
+  for(var i=0;i<boxes;i++){
+    gTimers.push(null);
+    var d=document.createElement("div");
+    d.className="gbox"+(i===0?" foc":"");d.id="gb"+i;
+    d.innerHTML="<input type='tel' inputmode='numeric' id='gi"+i+"' placeholder='0' maxlength='3' autocomplete='off' onfocus='gfocus("+i+")' oninput='ginput("+i+")'><div class='glbl'>"+(i+1)+"</div>";
+    wrap.appendChild(d);
+    if(saved[i])el("gi"+i).value=saved[i];
+  }
+  wrap.style.gridTemplateColumns="repeat("+Math.min(boxes,4)+",1fr)";
+  tryGrade();
+}
+function gfocus(i){for(var j=0;j<boxes;j++){var b=el("gb"+j);if(b){b.classList.remove("foc");if(j===i)b.classList.add("foc");}}}
+function ginput(i){
+  clearTimeout(gTimers[i]);
+  var inp=el("gi"+i),v=inp.value.replace(/[^0-9]/g,"");
+  if(v.length>3)v=v.slice(0,3);
+  inp.value=v;
+  doFlash("gb"+i,"fc");
+  if(v.length>=3)gTimers[i]=setTimeout(function(){commitGrade(i);},50);
+  else if(v.length===2)gTimers[i]=setTimeout(function(){commitGrade(i);},400);
+  tryGrade();
+}
+function commitGrade(i){
+  var v=el("gi"+i).value;if(!v)return;
+  var box=el("gb"+i);box.classList.remove("foc");box.classList.add("don");doFlash("gb"+i,"fc");
+  for(var j=i+1;j<boxes;j++){if(!el("gi"+j).value){el("gb"+j).classList.add("foc");doFlash("gb"+j,"fi");el("gi"+j).focus();return;}}
+  el("gi"+i).blur();
+}
+function tryGrade(){
+  var vals=[],sum=0;
+  for(var i=0;i<boxes;i++){var n=parseInt(el("gi"+i).value);if(isNaN(n))return;vals.push(n);sum+=n;}
+  var avg=sum/boxes;
+  var fl=Math.floor(avg);
+  var dec=avg-fl;
+  var displayVal;
+  // قاعدة العراق: كسر >= 0.5 يصير العدد الاعلى
+  if(dec>=0.5){
+    displayVal=fl+1;
+    el("rn").textContent=displayVal;el("rd").textContent="";
+    var rb=el("rb");rb.style.display="inline-block";
+    rb.textContent="الاصل: "+(Math.round(avg*100)/100);
+    rb.style.background="rgba(16,185,129,.18)";rb.style.color="var(--grn)";
+  }else if(dec>0){
+    var avgR=Math.round(avg*100)/100;
+    var parts=avgR.toFixed(2).split(".");
+    el("rn").textContent=parts[0];el("rd").textContent="."+parts[1];
+    displayVal=avgR;el("rb").style.display="none";
+  }else{
+    el("rn").textContent=fl;el("rd").textContent="";
+    displayVal=fl;el("rb").style.display="none";
+  }
+  el("rf").textContent=vals.join("+")+"/"+boxes;
+  var cls,lbl;
+  if(displayVal>=95){cls="gpm";lbl="ممتاز+";}
+  else if(displayVal>=85){cls="gpm";lbl="ممتاز";}
+  else if(displayVal>=75){cls="gpj";lbl="جيد جداً";}
+  else if(displayVal>=65){cls="gpj";lbl="جيد";}
+  else if(displayVal>=55){cls="gpt";lbl="متوسط";}
+  else if(displayVal>=50){cls="gpq";lbl="مقبول";}
+  else{cls="gpr";lbl="راسب";}
+  el("gpill").className="gpill "+cls;el("gpill").textContent=lbl;
+  if(el("agChk").checked)startGCd();
+}
+function clearGrades(){
+  stopGCd();
+  for(var i=0;i<boxes;i++){clearTimeout(gTimers[i]);var inp=el("gi"+i);if(inp)inp.value="";var box=el("gb"+i);if(box)box.classList.remove("don");}
+  if(el("gb0"))el("gb0").classList.add("foc");
+  el("rn").textContent="-";el("rd").textContent="";el("rf").textContent="ادخل الدرجات";el("rb").style.display="none";
+  el("gpill").className="gpill gpe";el("gpill").textContent="-";
+}
+function sfocus(i){for(var j=0;j<2;j++){var b=el("srb"+j);if(b){b.classList.remove("foc");if(j===i)b.classList.add("foc");}}}
+function sinput(i){
+  clearTimeout(srTimer);
+  var inp=el("sri"+i),v=inp.value.replace(/[^0-9]/g,"");
+  if(v.length>5)v=v.slice(0,5);inp.value=v;
+  doFlash("srb"+i,"fc");
+  if(v.length>=2)srTimer=setTimeout(function(){commitSr(i);},450);
+  trySr();
+}
+function commitSr(i){
+  var v=el("sri"+i).value;if(!v)return;
+  el("srb"+i).classList.remove("foc");el("srb"+i).classList.add("don");doFlash("srb"+i,"fc");
+  if(i===0&&!el("sri1").value){el("srb1").classList.add("foc");doFlash("srb1","fi");el("sri1").focus();}
+  else el("sri"+i).blur();
+}
+function trySr(){
+  var t=parseInt(el("sri0").value),p=parseInt(el("sri1").value);
+  if(isNaN(t)||isNaN(p)||!t||!p){resetSr();return;}
+  if(p>t){el("srdet").textContent="الناجحون اكثر من الكلي";return;}
+  var pct=Math.round(p/t*100),fail=t-p;
+  el("srpct").textContent=pct+"%";el("srdet").textContent=p+" ناجح - "+fail+" راسب";
+  var clr,bg;
+  if(pct>=90){clr="var(--grn)";bg="linear-gradient(90deg,#059669,#34d399)";}
+  else if(pct>=70){clr="var(--blu)";bg="linear-gradient(90deg,#0284c7,#38bdf8)";}
+  else if(pct>=50){clr="var(--ora)";bg="linear-gradient(90deg,#c2410c,#fb923c)";}
+  else{clr="var(--red)";bg="linear-gradient(90deg,#be123c,#f43f5e)";}
+  el("srpct").style.color=clr;el("srbar").style.width=pct+"%";el("srbar").style.background=bg;
+  if(el("asChk").checked)startSrCd();
+}
+function resetSr(){el("srpct").textContent="- %";el("srpct").style.color="var(--mut)";el("srdet").textContent="ادخل البيانات";el("srbar").style.width="0%";}
+function clearSr(){
+  stopSrCd();clearTimeout(srTimer);el("sri0").value="";el("sri1").value="";
+  el("srb0").classList.remove("don");el("srb0").classList.add("foc");
+  el("srb1").classList.remove("don");el("srb1").classList.remove("foc");
+  resetSr();
+}
+function doFlash(id,cls){var e=el(id);if(!e)return;e.classList.remove(cls);void e.offsetWidth;e.classList.add(cls);setTimeout(function(){e.classList.remove(cls);},140);}
+function startGCd(){stopGCd();var s=secs;el("gcd").classList.add("show");el("gsec").textContent=s;el("garc").style.strokeDashoffset="0";gCdInt=setInterval(function(){s--;el("gsec").textContent=s;el("garc").style.strokeDashoffset=String(50-(s/secs)*50);if(s<=0){stopGCd();clearGrades();}},1000);}
+function stopGCd(){clearInterval(gCdInt);gCdInt=null;el("gcd").classList.remove("show");el("garc").style.strokeDashoffset="50";}
+function startSrCd(){stopSrCd();var s=secs;el("srcd").classList.add("show");el("srsec").textContent=s;el("srarc").style.strokeDashoffset="0";srCdInt=setInterval(function(){s--;el("srsec").textContent=s;el("srarc").style.strokeDashoffset=String(50-(s/secs)*50);if(s<=0){stopSrCd();clearSr();}},1000);}
+function stopSrCd(){clearInterval(srCdInt);srCdInt=null;el("srcd").classList.remove("show");el("srarc").style.strokeDashoffset="50";}
+function doShare(){var msg="حاسبة المعدل الذكي - تواصل مع المطور: https://t.me/saifA31";if(navigator.share){navigator.share({title:"حاسبة المعدل الذكي",text:msg});}else if(navigator.clipboard){navigator.clipboard.writeText(msg).then(function(){showToast("تم النسخ");});}else{showToast("t.me/saifA31");}}
+function showToast(msg){var t=el("toast");t.textContent=msg;t.style.opacity="1";clearTimeout(t._t);t._t=setTimeout(function(){t.style.opacity="0";},2200);}
+function cfmt(n){var s=String(Math.round(Number(n)*1e10)/1e10);var p=s.split(".");p[0]=p[0].replace(/\B(?=(\d{3})+(?!\d))/g,",");return p.join(".");}
+function cFlash(){var e=el("cmn");e.classList.remove("cf");void e.offsetWidth;e.classList.add("cf");setTimeout(function(){e.classList.remove("cf");},110);}
+function cUpd(){var d=cCur==="E"?"Error":cCur;if(d!=="Error"&&!d.endsWith(".")){var p=(parseFloat(d)||0).toString().split(".");p[0]=p[0].replace(/\B(?=(\d{3})+(?!\d))/g,",");d=p.join(".");}el("cmn").textContent=d;if(cPrev!==null&&cOper&&!cNewNum&&cCur!=="E"){var r=cCalc(cPrev,parseFloat(cCur),cOper);el("cpv").textContent=r!==null?("= "+cfmt(r)):"";}else{el("cpv").textContent="";}}
+function cCalc(a,b,op){if(op==="+")return a+b;if(op==="-")return a-b;if(op==="*")return a*b;if(op==="/")return b!==0?a/b:null;return null;}
+function cN(n){if(cCur==="E")cCur="0";if(cNewNum||cCur==="0"||cJustEq){cCur=n;cNewNum=false;cJustEq=false;}else if(cCur.replace("-","").length<12)cCur+=n;cFlash();cUpd();}
+function cDot(){if(cNewNum){cCur="0.";cNewNum=false;}else if(cCur.indexOf(".")===-1)cCur+=".";cUpd();}
+function cSign(){if(cCur==="0"||cCur==="E")return;cCur=cCur.charAt(0)==="-"?cCur.slice(1):"-"+cCur;cFlash();cUpd();}
+function cPct(){cCur=String(parseFloat(cCur)/100);cFlash();cUpd();}
+function cOp(op){if(cCur==="E")return;if(cPrev!==null&&!cNewNum){var r=cCalc(cPrev,parseFloat(cCur),cOper);if(r===null){cCur="E";cOper=null;cPrev=null;cNewNum=false;cUpd();return;}cCur=String(Math.round(r*1e10)/1e10);}cPrev=parseFloat(cCur);cOper=op;cNewNum=true;cJustEq=false;el("cex").textContent=cfmt(cPrev)+" "+(op==="/"?"÷":op==="*"?"×":op==="-"?"−":op);var ids=["od","om","os","oa"],ops=["/","*","-","+"];for(var i=0;i<ids.length;i++)el(ids[i]).classList.toggle("act",ops[i]===op);el("cpv").textContent="";}
+function cEq(){if(cPrev===null||cOper===null)return;var b=parseFloat(cCur),r=cCalc(cPrev,b,cOper),sym=cOper==="/"?"÷":cOper==="*"?"×":cOper==="-"?"−":cOper;el("cex").textContent=cfmt(cPrev)+" "+sym+" "+cfmt(b)+" =";cCur=r===null?"E":String(Math.round(r*1e10)/1e10);cPrev=null;cOper=null;cNewNum=false;cJustEq=true;var ids=["od","om","os","oa"];for(var i=0;i<ids.length;i++)el(ids[i]).classList.remove("act");cFlash();cUpd();el("cpv").textContent="";}
+function cAC(){cCur="0";cPrev=null;cOper=null;cNewNum=false;cJustEq=false;el("cex").textContent="";el("cpv").textContent="";var ids=["od","om","os","oa"];for(var i=0;i<ids.length;i++)el(ids[i]).classList.remove("act");cFlash();cUpd();}
+buildBoxes();
+</script>
+</body>
+</html>
